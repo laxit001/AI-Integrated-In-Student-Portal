@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Student Portal — Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-dark">
+
+    <main class="center-screen">
+        <div class="card login-card">
+
+            <h1 class="brand">University Portal</h1>
+            <p class="muted">Sign in to access your dashboard</p>
+
+            <form id="loginForm" class="stack">
+                <input id="user" name="user" type="text" placeholder="Username" required />
+                <input id="pass" name="pass" type="password" placeholder="Password" required />
+                <button class="login-btn login-btn-primary" type="submit">Sign In</button>
+            </form>
+
+            <small class="muted">Use any username from the backend fake users for testing.</small>
+
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('loginForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('user').value;
+            const password = document.getElementById('pass').value;
+
+            try {
+                const resp = await fetch('http://127.0.0.1:8000/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (!resp.ok) {
+                    const err = await resp.json();
+                    alert(err.detail || 'Login failed');
+                    return;
+                }
+
+                const data = await resp.json();
+
+                if (data.success) {
+                    localStorage.setItem('student_logged_in', '1');
+                    localStorage.setItem('student_user', username);
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (err) {
+                alert('Could not reach backend. Make sure FastAPI is running on http://127.0.0.1:8000');
+                console.error(err);
+            }
+        };
+    </script>
+
+</body>
+
+</html>
